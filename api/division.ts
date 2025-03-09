@@ -1,5 +1,5 @@
-// Search divisions by term
-export const searchDivisions = async (db: D1Database, term: string) => {
+// Get divisions by term
+export const searchDivisionsByTerm = async (db: D1Database, term: string) => {
     const { results } = await db.prepare(`
       SELECT 
         cd.division_id as id,
@@ -29,3 +29,30 @@ export const searchDivisions = async (db: D1Database, term: string) => {
     
     return processedDivisions;
   }
+
+// Get division by slug
+export const searchDivisionsBySlug = async (db: D1Database, actualSlug: string) => {
+  const results = await db.prepare(`
+    SELECT 
+      cd.division_id, 
+      cd.division_name, 
+      cd.division_slug,
+      cd.company_id,
+      c.company_name,
+      c.company_slug
+    FROM company_divisions cd
+    JOIN companies c ON cd.company_id = c.company_id
+    WHERE cd.division_slug = ?
+  `).bind(actualSlug).first();
+  return results;
+}
+
+// Update divisions by id
+export const updateDivisionsSearchCount = async (db: D1Database, division_id: Number) => {
+  const { results } = await db.prepare(`
+    UPDATE company_divisions
+    SET search_count = search_count + 1
+    WHERE division_id = ?
+  `).bind(division_id).run();
+  return results;
+}

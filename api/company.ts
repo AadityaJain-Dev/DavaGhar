@@ -1,6 +1,6 @@
-// Search companies by term
-export const searchCompanies = async (db: D1Database, term: string) => {
-    const { results } = await db.prepare(`
+// Get companies by term
+export const searchCompaniesByTerm = async (db: D1Database, term: string) => {
+  const { results } = await db.prepare(`
       SELECT 
         company_id as id,
         company_name as name,
@@ -13,15 +13,32 @@ export const searchCompanies = async (db: D1Database, term: string) => {
       LIMIT 5
     `).bind(`%${term}%`).all();
 
-    // Process results to add value (slug) property
-    const processedCompanies = results.map(({ name, slug }) => ({
-      name,
-      type: "company",
-      slug,
+  // Process results to add value (slug) property
+  const processedCompanies = results.map(({ name, slug }) => ({
+    name,
+    type: "company",
+    slug,
   }));
-  
 
-    return processedCompanies;
+  return processedCompanies;
 }
 
+// Get company by slug
+export const searchCompaniesBySlug = async (db: D1Database, actualSlug: string) => {
+  const results = await db.prepare(`
+    SELECT company_id, company_name, company_slug, search_count
+    FROM companies
+    WHERE company_slug = ?
+  `).bind(actualSlug).first();
+  return results;
+}
 
+// Update companies by id
+export const updateCompanySearchCount = async (db: D1Database, company_id: Number) => {
+  const { results } = await db.prepare(`
+    UPDATE companies
+    SET search_count = search_count + 1
+    WHERE company_id = ?
+  `).bind(company_id).run();
+  return results;
+}
