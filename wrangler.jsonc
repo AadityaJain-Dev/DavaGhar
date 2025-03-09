@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "dava-gharp",
+	"name": "dava-ghar",
 	"main": "api/index.ts",
 	"compatibility_date": "2025-03-03",
 	"assets": {
