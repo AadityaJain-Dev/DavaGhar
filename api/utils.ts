@@ -17,5 +17,8 @@ export const mergeResults = (companies: any[], divisions: any[], maxResults: num
     combined.sort((a, b) => b.search_count - a.search_count);
 
     // Limit to maxResults
-    return combined.slice(0, maxResults);
+    const top5Results = combined.slice(0, maxResults);
+
+    return top5Results.map(({ name, slug }) => ({ name, slug }));
+
 };

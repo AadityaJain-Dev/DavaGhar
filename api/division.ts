@@ -25,8 +25,6 @@ export const searchDivisionsByTerm = async (db: D1Database, term: string) => {
       parent_slug
   }));
 
-
-    
     return processedDivisions;
   }
 
@@ -54,5 +52,18 @@ export const updateDivisionsSearchCount = async (db: D1Database, division_id: Nu
     SET search_count = search_count + 1
     WHERE division_id = ?
   `).bind(division_id).run();
+  return results;
+}
+
+// Get 5 most searched divisions
+export const mostSearchedDivisions = async (db: D1Database) => {
+  const { results } = await db.prepare(`
+    SELECT
+      division_name as name,
+      division_slug as slug
+    FROM company_divisions 
+    ORDER BY search_count DESC 
+    LIMIT 5;
+  `).all();
   return results;
 }

@@ -3,8 +3,8 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 
 import { mergeResults } from "./utils";
-import { searchCompaniesByTerm, searchCompaniesBySlug, updateCompanySearchCount } from "./company";
-import { searchDivisionsByTerm, searchDivisionsBySlug, updateDivisionsSearchCount } from "./division";
+import { searchCompaniesByTerm, searchCompaniesBySlug, updateCompanySearchCount, mostSearchedCompanies } from "./company";
+import { searchDivisionsByTerm, searchDivisionsBySlug, updateDivisionsSearchCount, mostSearchedDivisions } from "./division";
 import { getSuppliersByCompanyId } from "./supplier";
 
 // Create a new Hono app
@@ -134,6 +134,32 @@ app.get('/api/company/:slug', async (c) => {
   }
 });
 
+// top 5 searched companies
+app.get('/top-5', async (c) => {
+  try {
+
+    const cachedResult = await c.env.KV.get('top-5');
+    if (cachedResult) {
+      console.log(`Cache hit for top 5 searched companies`);
+      return c.json(JSON.parse(cachedResult), 200);
+    }
+
+    // Search for companies and divisions matching the term
+    const companies = await mostSearchedCompanies(c.env.DB);
+    const divisions = await mostSearchedDivisions(c.env.DB);
+
+    // Combine and limit results to 5 total
+    const results = mergeResults(companies, divisions, 5);
+
+    // Store the result in KV with 1 hour TTL.
+    await c.env.KV.put('top-5', JSON.stringify(results), { expirationTtl: 3600 });
+
+    return c.json({ results });
+  } catch (error) {
+    console.error(error);
+    return c.json({ error: 'Something went wrong' }, 500);
+  }
+});
 
 
 // Fallback to static assets for non-API routes

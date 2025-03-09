@@ -42,3 +42,17 @@ export const updateCompanySearchCount = async (db: D1Database, company_id: Numbe
   `).bind(company_id).run();
   return results;
 }
+
+// Get 5 most searched companies
+export const mostSearchedCompanies = async (db: D1Database) => {
+  const { results } = await db.prepare(`
+    SELECT 
+        company_name as name,
+        company_slug as slug,
+        search_count
+    FROM companies 
+    ORDER BY search_count DESC 
+    LIMIT 5;
+  `).all();
+  return results;
+}
