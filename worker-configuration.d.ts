@@ -3,4 +3,5 @@
 interface Env {
 	ASSETS: Fetcher;
 	KV: KVNamespace;
+	DB: D1Database;
 }
