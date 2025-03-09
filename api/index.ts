@@ -80,10 +80,10 @@ app.get('/api/company/:slug', async (c) => {
         return c.json({ error: "Company not found" }, 404);
       }
 
-      await updateCompanySearchCount(c.env.DB, company.company_id)
+      await updateCompanySearchCount(c.env.DB, Number(company.company_id))
 
       // Get top 3 suppliers for this company
-      const suppliersList = await getSuppliersByCompanyId(c.env.DB, company.company_id)
+      const suppliersList = await getSuppliersByCompanyId(c.env.DB, Number(company.company_id))
 
       const results = {
         type: "company",
@@ -106,10 +106,10 @@ app.get('/api/company/:slug', async (c) => {
       }
 
       // Update search count
-      await updateDivisionsSearchCount(c.env.DB, division.division_id);
+      await updateDivisionsSearchCount(c.env.DB, Number(division.division_id));
 
       // Get top 3 suppliers for the parent company
-      const suppliersList = await getSuppliersByCompanyId(c.env.DB, division.company_id)
+      const suppliersList = await getSuppliersByCompanyId(c.env.DB, Number(division.company_id));
 
       const results = {
         type: "division",
@@ -135,7 +135,7 @@ app.get('/api/company/:slug', async (c) => {
 });
 
 // top 5 searched companies
-app.get('/top-5', async (c) => {
+app.get('/api/top-5', async (c) => {
   try {
 
     const cachedResult = await c.env.KV.get('top-5');
