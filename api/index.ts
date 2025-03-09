@@ -1,56 +1,52 @@
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { logger } from 'hono/logger';
+
+import { mergeResults } from "./utils";
+import { searchCompanies } from "./company";
+import { searchDivisions } from "./division";
+
+// Create a new Hono app
+const app = new Hono<{ Bindings: Env }>();
+
+// Apply middleware
+app.use('/api/*', logger());
+app.use('/api/*', cors());
+
+// API Routes
+
+// Typeahead endpoint for autocomplete
+app.get('/api/typeahead', async (c) => {
+  const searchTerm = c.req.query('q') || '';
+  
+  // Check if search term has at least 3 characters
+  if (searchTerm.length < 3) {
+    return c.json({ 
+      results: [],
+      message: "Search term must have at least 3 characters" 
+    }, 400);
+  }
+  
+  // Search for companies and divisions matching the term
+  const companies = await searchCompanies(c.env.DB, searchTerm);
+  const divisions = await searchDivisions(c.env.DB, searchTerm);
+  
+  // Combine and limit results to 5 total
+  const results = mergeResults(companies, divisions, 5);
+  
+  return c.json({ results });
+});
+
+
+
+
+
+// Fallback to static assets for non-API routes
+app.all('*', async (c) => {
+  return c.env.ASSETS.fetch(c.req.raw);
+});
+
+// Export default fetch handler
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    const url = new URL(request.url);
-
-    if (url.pathname.startsWith("/api/")) {
-
-
-      // await env.KV.put("KEY2", "VALUE2");
-      // const value = await env.KV.get("KEY2");
-      // console.log(value);
-
-
-      // return Response.json({
-      //   name: "Cloudflare",
-      //   v: value
-      // });
-
-
-
-      // Example: Query all companies
-      // const { results } = await env.DB.prepare(
-      //   "SELECT * FROM companies ORDER BY company_name"
-      // ).all();
-
-      const results = await searchByCompany(env.DB, 'Dr. Reddy\'s');
-
-
-      return new Response(JSON.stringify(results), {
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
-
-
-    return env.ASSETS.fetch(request);
-  },
+  fetch: app.fetch,
 } satisfies ExportedHandler<Env>;
-
-
-async function searchByCompany(db: D1Database, companyName: string) {
-  // Update search count for the company
-  await db.prepare(
-    "UPDATE companies SET search_count = search_count + 1 WHERE company_name LIKE ?"
-  ).bind(`%${companyName}%`).run();
-  
-  // Find suppliers for the company
-  const { results } = await db.prepare(`
-    SELECT s.* 
-    FROM suppliers s
-    JOIN supplier_companies sc ON s.supplier_id = sc.supplier_id
-    JOIN companies c ON sc.company_id = c.company_id
-    WHERE c.company_name LIKE ?
-  `).bind(`%${companyName}%`).all();
-  
-  return results;
-}
