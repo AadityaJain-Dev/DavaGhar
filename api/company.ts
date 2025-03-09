@@ -17,7 +17,7 @@ export const searchCompaniesByTerm = async (db: D1Database, term: string) => {
   const processedCompanies = results.map(({ name, slug }) => ({
     name,
     type: "company",
-    slug,
+    slug: `p${slug}`,
   }));
 
   return processedCompanies;
@@ -54,5 +54,5 @@ export const mostSearchedCompanies = async (db: D1Database) => {
     ORDER BY search_count DESC 
     LIMIT 5;
   `).all();
-  return results;
+  return results.map(company => ({...company, slug: `p${company.slug}`}));
 }

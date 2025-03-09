@@ -20,9 +20,9 @@ export const searchDivisionsByTerm = async (db: D1Database, term: string) => {
     const processedDivisions = results.map(({ name, slug, parent_name, parent_slug }) => ({
       name,
       type: "division",
-      slug,
+      slug: `d${slug}`,
       parent_name, 
-      parent_slug
+      parent_slug:`p${parent_slug}`
   }));
 
     return processedDivisions;
@@ -65,5 +65,5 @@ export const mostSearchedDivisions = async (db: D1Database) => {
     ORDER BY search_count DESC 
     LIMIT 5;
   `).all();
-  return results;
+  return results.map(division => ({...division, slug: `d${division.slug}`}));
 }
