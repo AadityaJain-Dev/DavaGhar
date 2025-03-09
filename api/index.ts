@@ -29,12 +29,21 @@ app.get('/api/typeahead', async (c) => {
       }, 400);
     }
 
+    const cachedResult = await c.env.KV.get(searchTerm);
+    if (cachedResult) {
+      console.log(`Cache hit for search term: ${searchTerm}`);
+      return c.json(JSON.parse(cachedResult), 200);
+    }
+
     // Search for companies and divisions matching the term
     const companies = await searchCompaniesByTerm(c.env.DB, searchTerm);
     const divisions = await searchDivisionsByTerm(c.env.DB, searchTerm);
 
     // Combine and limit results to 5 total
     const results = mergeResults(companies, divisions, 5);
+
+    // Store the result in KV with 1 hour TTL.
+    await c.env.KV.put(searchTerm, JSON.stringify(results), { expirationTtl: 3600 });
 
     return c.json({ results });
   } catch (error) {
@@ -54,6 +63,13 @@ app.get('/api/company/:slug', async (c) => {
       return c.json({ error: "Invalid slug" }, 400);
     }
 
+    const cachedResult = await c.env.KV.get(slug);
+    if (cachedResult) {
+      console.log(`Cache hit for slug: ${slug}`);
+      return c.json(JSON.parse(cachedResult), 200);
+    }
+
+
     const prefix = slug.charAt(0);
     const actualSlug = slug.substring(1);
 
@@ -69,12 +85,18 @@ app.get('/api/company/:slug', async (c) => {
       // Get top 3 suppliers for this company
       const suppliersList = await getSuppliersByCompanyId(c.env.DB, company.company_id)
 
-      return c.json({
+      const results = {
         type: "company",
         name: company.company_name,
         slug: company.company_slug,
         suppliers: suppliersList
-      });
+      };
+
+      // Store the result in KV with 1 hour TTL.
+      await c.env.KV.put(slug, JSON.stringify(results), { expirationTtl: 3600 });
+
+      return c.json(results);
+
     } else if (prefix === 'd') {
 
       const division = await searchDivisionsBySlug(c.env.DB, actualSlug);
@@ -89,14 +111,19 @@ app.get('/api/company/:slug', async (c) => {
       // Get top 3 suppliers for the parent company
       const suppliersList = await getSuppliersByCompanyId(c.env.DB, division.company_id)
 
-      return c.json({
+      const results = {
         type: "division",
         name: division.division_name,
         slug: division.division_slug,
         parent_name: division.company_name,
         parent_slug: division.company_slug,
         suppliers: suppliersList
-      });
+      };
+
+      // Store the result in KV with 1 hour TTL.
+      await c.env.KV.put(slug, JSON.stringify(results), { expirationTtl: 3600 });
+
+      return c.json(results);
     }
     else {
       return c.json({ error: "Invalid slug" }, 400);
