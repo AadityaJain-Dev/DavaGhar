@@ -45,7 +45,7 @@ app.get('/api/typeahead', async (c) => {
     // Store the result in KV with 1 hour TTL.
     await c.env.KV.put(searchTerm, JSON.stringify(results), { expirationTtl: 61 });
 
-    return c.json({ results });
+    return c.json(results);
   } catch (error) {
     console.error(error);
     return c.json({ error: 'Something went wrong' }, 500);

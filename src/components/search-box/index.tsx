@@ -7,7 +7,9 @@ const SearchBox = ({ setCompanyData, setSearchTerm, searchTerm = '', setShowResu
     const fetchTypeaheadResults = async (query) => {
         try {
             const response = await fetch(`/api/typeahead?q=${encodeURIComponent(query)}`);
-            return await response.json();
+            const data = await response.json();
+            // Ensure we return an array
+            return Array.isArray(data) ? data : [];
         } catch (error) {
             console.error('Error fetching typeahead results:', error);
             return [];
@@ -17,6 +19,9 @@ const SearchBox = ({ setCompanyData, setSearchTerm, searchTerm = '', setShowResu
     const searchCompany = (e) => {
         const searchedTerm = String(e.target.value).trim();
         setSearchTerm(searchedTerm);
+        
+        // Show results box immediately, even if empty
+        setShowResults(true);
 
         // Clear previous timeout
         if (debounceTimeout.current) {
@@ -25,15 +30,26 @@ const SearchBox = ({ setCompanyData, setSearchTerm, searchTerm = '', setShowResu
 
         // add debounce logic, time should be 750ms
         if (searchedTerm.length > 2) {
+            // Update company data with loading state first
+            setCompanyData([{ isLoading: true }]);
+            
             debounceTimeout.current = setTimeout(() => {
                 fetchTypeaheadResults(searchedTerm)
                     .then((data) => {
-                        setCompanyData(data);
+                        // Ensure data is an array
+                        setCompanyData(Array.isArray(data) ? data : []);
                     })
                     .catch((error) => { 
                         console.log('typeahead api error ', error);
+                        setCompanyData([]);
                     });
             }, 750);
+        } else if (searchedTerm.length <= 2 && searchedTerm.length > 0) {
+            // When search term is too short but not empty
+            setCompanyData([{ isTooShort: true }]);
+        } else {
+            // Empty search term
+            setCompanyData([]);
         }
     };
 
