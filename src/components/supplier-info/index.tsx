@@ -65,7 +65,7 @@ const SupplierInfo = ({ companySlug = '' }) => {
                         </div>
                         <div>
                             <h2 className="text-2xl font-bold text-gray-800">{companyData.name}</h2>
-                            <p className="text-gray-500">{companyData.type}</p>
+                            {!!companyData.parent_name && <p className="text-gray-500">Parent: {companyData.parent_name}</p>}
                         </div>
                     </div>
 
@@ -76,10 +76,9 @@ const SupplierInfo = ({ companySlug = '' }) => {
                                 <div key={index} className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                                     <div className="flex justify-between">
                                         <h4 className="font-medium text-gray-800">{supplier.name}</h4>
-                                        <span className="text-sm text-gray-500">ID: {supplier.drug_licence_number}</span>
+                                        <span className="text-sm text-gray-500">DL: {supplier.drug_licence_number}</span>
                                     </div>
-                                    <p className="text-gray-600 mt-1">{supplier.shop_name}</p>
-                                    <p className="text-gray-500 text-sm mt-2">{supplier.address}</p>
+                                    <p className="text-gray-500 text-sm mt-2">Address: {supplier.address}</p>
                                 </div>
                             ))}
                         </div>
