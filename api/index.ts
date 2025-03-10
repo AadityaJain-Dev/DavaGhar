@@ -43,7 +43,7 @@ app.get('/api/typeahead', async (c) => {
     const results = mergeResults(companies, divisions, 5);
 
     // Store the result in KV with 1 hour TTL.
-    await c.env.KV.put(searchTerm, JSON.stringify(results), { expirationTtl: 6 });
+    await c.env.KV.put(searchTerm, JSON.stringify(results), { expirationTtl: 61 });
 
     return c.json({ results });
   } catch (error) {
@@ -93,7 +93,7 @@ app.get('/api/company/:slug', async (c) => {
       };
 
       // Store the result in KV with 1 hour TTL.
-      await c.env.KV.put(slug, JSON.stringify(results), { expirationTtl: 6 });
+      await c.env.KV.put(slug, JSON.stringify(results), { expirationTtl: 61 });
 
       return c.json(results);
 
@@ -121,7 +121,7 @@ app.get('/api/company/:slug', async (c) => {
       };
 
       // Store the result in KV with 1 hour TTL.
-      await c.env.KV.put(slug, JSON.stringify(results), { expirationTtl: 6 });
+      await c.env.KV.put(slug, JSON.stringify(results), { expirationTtl: 61 });
 
       return c.json(results);
     }
@@ -152,7 +152,7 @@ app.get('/api/top-5', async (c) => {
     const results = mergeResults(companies, divisions, 5);
 
     // Store the result in KV with 1 hour TTL.
-    await c.env.KV.put('top-5', JSON.stringify(results), { expirationTtl: 6 });
+    await c.env.KV.put('top-5', JSON.stringify(results), { expirationTtl: 61 });
 
     return c.json({ results });
   } catch (error) {
