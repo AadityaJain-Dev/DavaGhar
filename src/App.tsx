@@ -3,9 +3,11 @@ import { useState } from 'react';
 import SearchBox from "./components/search-box/index";
 import ResultBox from "./components/result-box/index";
 import SupplierInfo from "./components/supplier-info/index";
+import { CompanyData } from './types/types';
 
 const App = () => {
-  const [companyData, setCompanyData] = useState([]);
+  // Properly type the state
+  const [companyData, setCompanyData] = useState<CompanyData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showResults, setShowResults] = useState(false);
   const [selectedCompanySlug, setSelectedCompanySlug] = useState('');
