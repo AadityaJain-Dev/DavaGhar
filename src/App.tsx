@@ -47,6 +47,12 @@ const App = () => {
             setShowResults={setShowResults}
             onCompanySelect={handleCompanySelect}
           />
+
+          <div className="flex flex-col mt-6">
+            <p className="text-black text-lg font-semibold italic text-center"><i>Eliminate retail margins by finding bulk suppliers directly</i></p>
+            <p className="text-black text-center">Note: This is an ongoing project and we add new suppliers on every weekend.</p>
+          </div>
+          
         </div>
 
         <SupplierInfo companySlug={selectedCompanySlug} />
