@@ -1,12 +1,5 @@
-import { useRef, ChangeEvent, FormEvent, FocusEvent } from 'react';
-
-// Define interfaces for props and data structures
-interface CompanyData {
-  name?: string;
-  slug?: string;
-  isLoading?: boolean;
-  isTooShort?: boolean;
-}
+import { useRef, ChangeEvent, FormEvent } from 'react';
+import { CompanyData } from '../../types/types';
 
 interface SearchBoxProps {
   setCompanyData: (data: CompanyData[]) => void;
@@ -21,8 +14,8 @@ const SearchBox = ({
   searchTerm = '', 
   setShowResults 
 }: SearchBoxProps) => {
-    // Use NodeJS.Timeout for the timeout type to match setTimeout return type
-    const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+    // Use ReturnType<typeof setTimeout> instead of NodeJS.Timeout
+    const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Fetch typeahead results
     const fetchTypeaheadResults = async (query: string): Promise<CompanyData[]> => {

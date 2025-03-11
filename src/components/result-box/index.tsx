@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CompanyData } from '../../types/types';
 
-// Define interfaces for your component's props and data structures
-interface CompanyData {
-  name: string;
-  slug: string;
-  isLoading?: boolean;
-  isTooShort?: boolean;
-}
 
 interface ResultBoxProps {
   companyData?: CompanyData[];
@@ -139,7 +133,7 @@ const ResultBox = ({
                     <li
                         key={`top-${index}`}
                         className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer transition-colors duration-200"
-                        onClick={() => handleSuggestionClick(item.slug)}
+                        onClick={() => handleSuggestionClick(String(item.slug))}
                     >
                         <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
