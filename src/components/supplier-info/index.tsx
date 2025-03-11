@@ -55,7 +55,7 @@ const SupplierInfo = ({ companySlug = '' }: SupplierInfoProps) => {
     return (
         <>
             {loading && (
-                <div className="mt-8 p-4 bg-white rounded-lg shadow-lg w-full">
+                <div className="w-full max-w-4xl mt-8 p-4 bg-white rounded-lg shadow-lg w-full">
                     <div className="flex justify-center">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-700"></div>
                     </div>
@@ -63,7 +63,7 @@ const SupplierInfo = ({ companySlug = '' }: SupplierInfoProps) => {
             )}
 
             {error && (
-                <div className="mt-8 p-4 bg-white rounded-lg shadow-lg w-full">
+                <div className="w-full max-w-4xl mt-8 p-4 bg-white rounded-lg shadow-lg w-full">
                     <div className="text-red-500 text-center">{error}</div>
                 </div>
             )}
