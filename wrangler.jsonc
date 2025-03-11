@@ -29,14 +29,14 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "dava-ghar-prod",
-			"database_id": "bea9d0ff-07f1-4634-af01-fb93febb048b"
+			"database_name": "xxxxxxxx",
+			"database_id": "xxxxxxxxxxxxxx"
 		}
 	],
 	"kv_namespaces": [
 		{
 			"binding": "KV",
-			"id": "e5ac2b35b87a41488f7971d204796607"
+			"id": "xxxxxxxxxxxxxx"
 		}
 	]
 	/**
