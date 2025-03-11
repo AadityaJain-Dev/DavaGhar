@@ -38,7 +38,7 @@
 			"binding": "KV",
 			"id": "xxxxxxxxxxxxxx"
 		}
-	]
+	],
 	/**
 	 * Environment Variables
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
@@ -60,4 +60,10 @@
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
 	 */
 	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
+	"routes": [
+		{
+		  "pattern": "davaghar.aadityajain.dev",
+		  "custom_domain": true
+		}
+	  ]
 }
