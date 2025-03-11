@@ -154,7 +154,7 @@ const ResultBox = ({
                         animate={{ opacity: 1, y: 0, height: 'auto' }}
                         exit={{ opacity: 0, y: -20, height: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="absolute w-full mt-2 bg-white rounded-lg shadow-lg overflow-hidden z-10 search-results"
+                        className="absolute w-full max-w-3xl mt-30 bg-white rounded-lg shadow-lg overflow-hidden z-10 search-results"
                         style={{ width: '100%' }}
                     >
                         <div className="p-4">

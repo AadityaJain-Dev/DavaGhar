@@ -72,7 +72,7 @@ const SupplierInfo = ({ companySlug = '' }: SupplierInfoProps) => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-8 p-6 bg-white rounded-lg shadow-lg w-full"
+                    className="w-full max-w-4xl mt-8 p-6 bg-white rounded-lg shadow-lg w-full"
                 >
                     <div className="flex items-center mb-4">
                         <div className="bg-blue-100 p-3 rounded-full mr-4">
