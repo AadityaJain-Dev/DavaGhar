@@ -1,8 +1,30 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ResultBox = ({ companyData = [], searchTerm = '', showResults, setShowResults, onCompanySelect }) => {
-    const [resultData, setResultData] = useState([]);
+// Define interfaces for your component's props and data structures
+interface CompanyData {
+  name: string;
+  slug: string;
+  isLoading?: boolean;
+  isTooShort?: boolean;
+}
+
+interface ResultBoxProps {
+  companyData?: CompanyData[];
+  searchTerm?: string;
+  showResults?: boolean;
+  setShowResults: (show: boolean) => void;
+  onCompanySelect: (slug: string) => void;
+}
+
+const ResultBox = ({ 
+  companyData = [], 
+  searchTerm = '', 
+  showResults = false, 
+  setShowResults, 
+  onCompanySelect 
+}: ResultBoxProps) => {
+    const [resultData, setResultData] = useState<CompanyData[]>([]);
     const [titleText, setTitleText] = useState('Most Searched');
     const [isLoading, setIsLoading] = useState(false);
     const [isTooShort, setIsTooShort] = useState(false);
@@ -51,18 +73,19 @@ const ResultBox = ({ companyData = [], searchTerm = '', showResults, setShowResu
     }, [searchTerm, companyData]);
 
     // Handle suggestion click
-    const handleSuggestionClick = (slug) => {
+    const handleSuggestionClick = (slug: string) => {
         onCompanySelect(slug);
         setShowResults(false);
     };
 
     // Close results when clicking outside
     useEffect(() => {
-        const handleClickOutside = (e) => {
+        const handleClickOutside = (e: MouseEvent) => {
             if (
-                !e.target.closest('.search-results') && 
-                !e.target.closest('input[type="search"]') &&
-                !e.target.closest('button[type="submit"]')
+                !e.target ||
+                !(e.target as Element).closest('.search-results') && 
+                !(e.target as Element).closest('input[type="search"]') &&
+                !(e.target as Element).closest('button[type="submit"]')
             ) {
                 setShowResults(false);
             }

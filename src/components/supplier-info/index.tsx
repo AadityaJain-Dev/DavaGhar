@@ -1,10 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-const SupplierInfo = ({ companySlug = '' }) => {
-    const [companyData, setCompanyData] = useState(null);
+// Define interfaces for component data
+interface Supplier {
+  name: string;
+  drug_licence_number: string;
+  address: string;
+}
+
+interface CompanyData {
+  name: string;
+  parent_name?: string;
+  suppliers?: Supplier[];
+}
+
+interface SupplierInfoProps {
+  companySlug?: string;
+}
+
+const SupplierInfo = ({ companySlug = '' }: SupplierInfoProps) => {
+    const [companyData, setCompanyData] = useState<CompanyData | null>(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     // Fetch company data when slug changes
     useEffect(() => {
@@ -72,7 +89,7 @@ const SupplierInfo = ({ companySlug = '' }) => {
                     <div className="mt-6">
                         <h3 className="text-lg font-semibold text-gray-800 mb-3">Suppliers</h3>
                         <div className="space-y-4">
-                            {companyData.suppliers && companyData.suppliers.map((supplier, index) => (
+                            {companyData.suppliers && companyData.suppliers.map((supplier: Supplier, index: number) => (
                                 <div key={index} className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                                     <div className="flex justify-between">
                                         <h4 className="font-medium text-gray-800">{supplier.name}</h4>

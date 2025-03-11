@@ -10,7 +10,7 @@ const App = () => {
   const [showResults, setShowResults] = useState(false);
   const [selectedCompanySlug, setSelectedCompanySlug] = useState('');
 
-  const handleCompanySelect = (slug) => {
+  const handleCompanySelect = (slug: string) => {
     setSelectedCompanySlug(slug);
     setSearchTerm(''); // Optionally clear search term after selection
   };

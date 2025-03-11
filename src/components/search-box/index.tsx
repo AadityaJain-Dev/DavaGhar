@@ -1,10 +1,31 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, ChangeEvent, FormEvent, FocusEvent } from 'react';
 
-const SearchBox = ({ setCompanyData, setSearchTerm, searchTerm = '', setShowResults }) => {
-    const debounceTimeout = useRef(null);
+// Define interfaces for props and data structures
+interface CompanyData {
+  name?: string;
+  slug?: string;
+  isLoading?: boolean;
+  isTooShort?: boolean;
+}
+
+interface SearchBoxProps {
+  setCompanyData: (data: CompanyData[]) => void;
+  setSearchTerm: (term: string) => void;
+  searchTerm?: string;
+  setShowResults: (show: boolean) => void;
+}
+
+const SearchBox = ({ 
+  setCompanyData, 
+  setSearchTerm, 
+  searchTerm = '', 
+  setShowResults 
+}: SearchBoxProps) => {
+    // Use NodeJS.Timeout for the timeout type to match setTimeout return type
+    const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
     // Fetch typeahead results
-    const fetchTypeaheadResults = async (query) => {
+    const fetchTypeaheadResults = async (query: string): Promise<CompanyData[]> => {
         try {
             const response = await fetch(`/api/typeahead?q=${encodeURIComponent(query)}`);
             const data = await response.json();
@@ -16,7 +37,7 @@ const SearchBox = ({ setCompanyData, setSearchTerm, searchTerm = '', setShowResu
         }
     };
 
-    const searchCompany = (e) => {
+    const searchCompany = (e: ChangeEvent<HTMLInputElement>) => {
         const searchedTerm = String(e.target.value).trim();
         setSearchTerm(searchedTerm);
         
@@ -60,7 +81,7 @@ const SearchBox = ({ setCompanyData, setSearchTerm, searchTerm = '', setShowResu
 
     return (
         <>
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={(e: FormEvent<HTMLFormElement>) => e.preventDefault()}>
                 <label htmlFor="search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
                     Search
                 </label>
