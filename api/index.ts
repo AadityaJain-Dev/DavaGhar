@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 
-import { mergeResults } from "./utils";
+import { mergeResults, isTurnstileResponseValid } from "./utils";
 import { searchCompaniesByTerm, searchCompaniesBySlug, updateCompanySearchCount, mostSearchedCompanies } from "./company";
 import { searchDivisionsByTerm, searchDivisionsBySlug, updateDivisionsSearchCount, mostSearchedDivisions } from "./division";
 import { getSuppliersByCompanyId } from "./supplier";
@@ -57,12 +57,25 @@ app.get('/api/typeahead', async (c) => {
 app.get('/api/company/:slug', async (c) => {
   try {
     const slug = c.req.param('slug');
+    const captcha = c.req.query('captcha') || '';
 
     // No slug provided
     if (!slug || slug.length < 2) {
       return c.json({ error: "Invalid slug" }, 400);
     }
 
+    // verify turnstile
+    if (!captcha) {
+      //TURNSTILE_SECRET
+      return c.json({ error: "Please fill the captcha" }, 400);
+    } else {
+      const isCaptchaValid = await isTurnstileResponseValid(captcha, c.env.TURNSTILE_SECRET);
+      if (!isCaptchaValid) {
+        return c.json({ error: "Captcha verification failed" }, 400);
+      }
+
+    }
+    
     const cachedResult = await c.env.KV.get(slug);
     if (cachedResult) {
       console.log(`Cache hit for slug: ${slug}`);

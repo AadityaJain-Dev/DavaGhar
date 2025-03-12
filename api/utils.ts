@@ -1,3 +1,11 @@
+interface TurnstileResponse {
+    "success": boolean,
+    "challenge_ts": string,
+    "hostname": string,
+    "action": string,
+    "cdata": string,
+}
+
 // Helper function to create slugs
 export const createSlug = (text: string): string => {
     return text
@@ -22,3 +30,30 @@ export const mergeResults = (companies: any[], divisions: any[], maxResults: num
     return top5Results.map(({ name, slug }) => ({ name, slug }));
 
 };
+
+
+export const isTurnstileResponseValid = async (token = '', SECRET_KEY = '') => {
+
+    if(!token || !SECRET_KEY){
+        console.error(`Turnstile verification failed because param missing`);
+        return false;    
+    }
+
+    const url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+    const result = await fetch(url, {
+        body: JSON.stringify({
+            secret: SECRET_KEY,
+            response: token
+        }),
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const outcome: TurnstileResponse = await result.json();
+    if (outcome.success) {
+        return true;
+    }
+    return false;
+}

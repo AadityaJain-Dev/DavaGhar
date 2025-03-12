@@ -9,6 +9,7 @@ interface ResultBoxProps {
   showResults?: boolean;
   setShowResults: (show: boolean) => void;
   onCompanySelect: (slug: string) => void;
+  setSearchTerm: (searchTerm: string) => void;
 }
 
 const ResultBox = ({ 
@@ -16,7 +17,8 @@ const ResultBox = ({
   searchTerm = '', 
   showResults = false, 
   setShowResults, 
-  onCompanySelect 
+  onCompanySelect,
+  setSearchTerm 
 }: ResultBoxProps) => {
     const [resultData, setResultData] = useState<CompanyData[]>([]);
     const [titleText, setTitleText] = useState('Most Searched');
@@ -67,7 +69,8 @@ const ResultBox = ({
     }, [searchTerm, companyData]);
 
     // Handle suggestion click
-    const handleSuggestionClick = (slug: string) => {
+    const handleSuggestionClick = (slug: string, name:string) => {
+        setSearchTerm(name);
         onCompanySelect(slug);
         setShowResults(false);
     };
@@ -133,7 +136,7 @@ const ResultBox = ({
                     <li
                         key={`top-${index}`}
                         className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer transition-colors duration-200"
-                        onClick={() => handleSuggestionClick(String(item.slug))}
+                        onClick={() => handleSuggestionClick(String(item.slug), String(item.name))}
                     >
                         <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
@@ -154,7 +157,7 @@ const ResultBox = ({
                         animate={{ opacity: 1, y: 0, height: 'auto' }}
                         exit={{ opacity: 0, y: -20, height: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="absolute w-full mt-2 bg-white rounded-lg shadow-lg overflow-hidden z-10 search-results"
+                        className="absolute w-full max-w-3xl mt-30 bg-white rounded-lg shadow-lg overflow-hidden z-10 search-results"
                         style={{ width: '100%' }}
                     >
                         <div className="p-4">
