@@ -1,4 +1,4 @@
-import { useRef, ChangeEvent, FormEvent } from 'react';
+import { useRef, ChangeEvent, FormEvent, useEffect } from 'react';
 import { CompanyData } from '../../types/types';
 
 interface SearchBoxProps {
@@ -6,16 +6,37 @@ interface SearchBoxProps {
     setSearchTerm: (term: string) => void;
     searchTerm?: string;
     setShowResults: (show: boolean) => void;
+    setCaptchaToken: (token: string) => void;
+}
+
+declare global {
+    interface Window {
+        turnstileCallback?: (token: string) => void;
+    }
 }
 
 const SearchBox = ({
     setCompanyData,
     setSearchTerm,
     searchTerm = '',
-    setShowResults
+    setShowResults,
+    setCaptchaToken
 }: SearchBoxProps) => {
     // Use ReturnType<typeof setTimeout> instead of NodeJS.Timeout
     const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        // Define the callback for Turnstile
+        window.turnstileCallback = (token) => {
+            setCaptchaToken(token);
+            console.log("Turnstile token captured:", token);
+        };
+        
+        // Clean up when component unmounts
+        return () => {
+            delete window.turnstileCallback;
+        };
+    }, [setCaptchaToken]);
 
     // Fetch typeahead results
     const fetchTypeaheadResults = async (query: string): Promise<CompanyData[]> => {
@@ -103,6 +124,16 @@ const SearchBox = ({
                             Search
                         </button>
                     </div>
+
+                    <div className="flex justify-center mt-4">
+                        <div
+                            className="cf-turnstile"
+                            data-sitekey="0x4AAAAAABAZpQVAuI9hXJBC"
+                            data-callback="turnstileCallback"
+                            data-theme="light"
+                        ></div>
+                    </div>
+
                 </form>
             </div>
         </>

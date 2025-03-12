@@ -17,10 +17,10 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showResults, setShowResults] = useState(false);
   const [selectedCompanySlug, setSelectedCompanySlug] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
 
   const handleCompanySelect = (slug: string) => {
     setSelectedCompanySlug(slug);
-    setSearchTerm(''); // Optionally clear search term after selection
   };
 
   return (
@@ -35,6 +35,7 @@ const App = () => {
           setSearchTerm={setSearchTerm}
           searchTerm={searchTerm}
           setShowResults={setShowResults}
+          setCaptchaToken={setCaptchaToken}
         />
 
         <ResultBox
@@ -43,10 +44,11 @@ const App = () => {
           showResults={showResults}
           setShowResults={setShowResults}
           onCompanySelect={handleCompanySelect}
+          setSearchTerm={setSearchTerm}
         />
         </div>
 
-        <SupplierInfo companySlug={selectedCompanySlug} />
+        <SupplierInfo companySlug={selectedCompanySlug} token={captchaToken} setSearchTerm={setSearchTerm} setCaptchaToken={setCaptchaToken}/>
 
         <HighlightBox />
         <PopularCategoriesBox />

@@ -3,22 +3,27 @@ import { motion } from 'framer-motion';
 
 // Define interfaces for component data
 interface Supplier {
-  name: string;
-  drug_licence_number: string;
-  address: string;
+    name: string;
+    drug_licence_number: string;
+    address: string;
 }
 
 interface CompanyData {
-  name: string;
-  parent_name?: string;
-  suppliers?: Supplier[];
+    name: string;
+    parent_name?: string;
+    suppliers?: Supplier[];
 }
 
 interface SupplierInfoProps {
-  companySlug?: string;
+    companySlug?: string;
+    token: string;
+    setSearchTerm: (searchTerm: string) => void;
+    setCaptchaToken: (token: string) => void;
 }
 
-const SupplierInfo = ({ companySlug = '' }: SupplierInfoProps) => {
+declare const turnstile: any;
+
+const SupplierInfo = ({ companySlug = '', token = '', setSearchTerm, setCaptchaToken }: SupplierInfoProps) => {
     const [companyData, setCompanyData] = useState<CompanyData | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -26,27 +31,39 @@ const SupplierInfo = ({ companySlug = '' }: SupplierInfoProps) => {
     // Fetch company data when slug changes
     useEffect(() => {
         if (!companySlug) return;
+        if (!token) return;
 
         const fetchSuppliersData = async () => {
             try {
                 setLoading(true);
                 setError(null);
-                const response = await fetch(`/api/company/${companySlug}`);
+                const response = await fetch(`/api/company/${companySlug}?captcha=${token}`);
                 if (!response.ok) {
+                    const errorResponse = await response.json();
+                    if (errorResponse.error) {
+                        throw new Error(errorResponse.error);
+                    }
                     throw new Error('Failed to fetch company data');
                 }
                 const data = await response.json();
                 setCompanyData(data);
+                setSearchTerm('');
+                setCaptchaToken('');
+                turnstile.reset();
             } catch (error) {
                 console.error('Error fetching company data:', error);
-                setError('Failed to load company information. Please try again.');
+                if ((error instanceof Error) && error.message) {
+                    setError(error.message);
+                } else {
+                    setError('Failed to load company information. Please try again.');
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchSuppliersData();
-    }, [companySlug]);
+    }, [companySlug, token]);
 
     if (!companySlug && !companyData) {
         return null; // Don't render anything if no slug is provided yet
