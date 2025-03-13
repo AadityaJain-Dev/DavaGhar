@@ -12,6 +12,9 @@ interface SearchBoxProps {
 declare global {
     interface Window {
         turnstileCallback?: (token: string) => void;
+        turnstile?: {
+            render: (token: string, options: any) => void;
+        };
     }
 }
 
@@ -25,18 +28,73 @@ const SearchBox = ({
     // Use ReturnType<typeof setTimeout> instead of NodeJS.Timeout
     const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    useEffect(() => {
-        // Define the callback for Turnstile
-        window.turnstileCallback = (token) => {
-            setCaptchaToken(token);
-            console.log("Turnstile token captured:", token);
+useEffect(() => {
+    // Define the callback function for Turnstile
+    window.turnstileCallback = (token) => {
+      setCaptchaToken(token);
+    };
+    
+    // Function to load and render Turnstile
+    const loadAndRenderTurnstile = () => {
+      // Check if script already exists
+      if (!document.querySelector('script[src*="turnstile/v0/api.js"]')) {
+        const script = document.createElement('script');
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+        script.async = true;
+        script.defer = true;
+        script.onload = renderTurnstile;
+        script.onerror = () => {
+          console.error('Failed to load Turnstile script');
+          // Retry after a short delay
+          setTimeout(loadAndRenderTurnstile, 2000);
         };
+        document.head.appendChild(script);
+      } else if (window.turnstile) {
+        // If script exists but widget hasn't rendered, try to render it
+        renderTurnstile();
+      }
+    };
+    
+    // Function to render the Turnstile widget
+    const renderTurnstile = () => {
+      // Clear any existing widgets in the container
+      const container = document.getElementById('turnstile-container');
+      if (container) {
+        container.innerHTML = '';
         
-        // Clean up when component unmounts
-        return () => {
-            delete window.turnstileCallback;
-        };
-    }, [setCaptchaToken]);
+        if (window.turnstile) {
+          try {
+            window.turnstile.render('#turnstile-container', {
+              sitekey: '0x4AAAAAABAZpQVAuI9hXJBC',
+              callback: 'turnstileCallback',
+              'refresh-expired': 'auto'
+            });
+          } catch (error) {
+            console.error('Error rendering Turnstile:', error);
+          }
+        }
+      }
+    };
+    
+    // Start the loading process
+    loadAndRenderTurnstile();
+    
+    // Add a visibility change listener to handle cases where the page was hidden
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Make sure Turnstile is rendered when page becomes visible again
+        setTimeout(renderTurnstile, 500);
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Cleanup function
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      delete window.turnstileCallback;
+    };
+  }, [setCaptchaToken]);
 
     // Fetch typeahead results
     const fetchTypeaheadResults = async (query: string): Promise<CompanyData[]> => {
@@ -126,11 +184,13 @@ const SearchBox = ({
                     </div>
 
                     <div className="flex justify-center mt-4">
-                        <div
-                            className="cf-turnstile"
-                            data-sitekey="0x4AAAAAABAZpQVAuI9hXJBC"
-                            data-callback="turnstileCallback"
-                            data-theme="light"
+                        <div 
+                        id="turnstile-container" 
+                        className="cf-turnstile w-full flex justify-center my-4"
+                        style={{ minHeight: '65px' }}
+                        data-sitekey="0x4AAAAAABAZpQVAuI9hXJBC"
+                        data-callback="turnstileCallback"
+                        data-theme="light"
                         ></div>
                     </div>
 
